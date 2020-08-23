@@ -1,0 +1,14 @@
+body {
+    background-color: burlywood;
+}
+.article-list, .tag-list {
+    padding-top: 10px;
+}
+.article {
+    width: 280px;
+    cursor: pointer;
+}
+.toggle {
+    margin-right: 5px;
+    margin-top: 5px;
+}
