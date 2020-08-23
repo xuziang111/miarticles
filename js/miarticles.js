@@ -126,9 +126,9 @@ function tagChange() {
                         }
                     }
                 }
-            }
-            if(showDivs.length < 1){
-                break;
+                if(showDivs.length < 1){
+                    break;
+                }
             }
         }
         for (let index = 0; index < showDivs.length; index++) {
