@@ -23,6 +23,7 @@ function initPage(){
         const article = miarticlesTotal[i];
         const articleDiv = document.createElement('div');
         articleDiv.className = 'col-auto mb-3';
+        articleDiv.id = 'articleDiv_' + article.id;
         const articleCard = document.createElement('div');
         articleCard.className = 'article shadow card';
         articleCard.setAttribute('data-id', article.id);
@@ -35,7 +36,15 @@ function initPage(){
         articleBody.append(title);
         const subtitle = document.createElement('h6');
         subtitle.className = 'card-subtitle mb-2 text-muted';
-        subtitle.innerText = article.author + ' ' + article.publishTime;
+        const authorSpan = document.createElement('span');
+        authorSpan.innerText = article.author;
+        authorSpan.className = 'author-span';
+        authorSpan.title = '点击仅展示该作者文章';
+        authorSpan.addEventListener('click', filterAuthor);
+        subtitle.append(authorSpan);
+        const publishTimeSpan = document.createElement('span');
+        publishTimeSpan.innerText = article.publishTime;
+        subtitle.append(publishTimeSpan);
         articleBody.append(subtitle);
         const text = document.createElement('p');
         text.className = 'card-text';
@@ -81,6 +90,26 @@ function initPage(){
             tagsCheckbox[tag] = tagToggle;
         }
     }
+}
+
+function filterAuthor(event) {
+    event.stopPropagation();
+    $('#tag-list').hide();
+    $('.col-auto').css('display', 'none');
+    const author = event.currentTarget.innerText;
+    for (let i = miarticlesTotal.length-1; i >= 0; i--) {
+        if (miarticlesTotal[i].author == author){
+            $('#articleDiv_' + miarticlesTotal[i].id).show();
+        }
+    }
+    document.getElementById('current-author').innerText = author;
+    $('#author-filter-info').show();
+}
+
+function changeToTagFilter(){
+    $('#author-filter-info').hide();
+    $('#tag-list').show();
+    tagChange();
 }
 
 function allTagChange() {

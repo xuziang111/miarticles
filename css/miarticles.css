@@ -12,3 +12,9 @@ body {
     margin-right: 5px;
     margin-top: 5px;
 }
+.author-span {
+    padding-right: 5px;
+}
+.author-span:hover {
+    color: lightblue;
+}
