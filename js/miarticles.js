@@ -1,4 +1,5 @@
 var tagsData = {};
+var tagsCheckbox = {};
 var currentShowArticleId = '';
 var miarticlesTotal = new Array();
 var miarticlesDetails = {};
@@ -59,7 +60,6 @@ function initPage(){
         tagDiv.innerText = tagText;
         articleCard.append(tagDiv);
         articleCard.addEventListener('click', showArticleDetail);
-        articleDiv.tagCount = article.tags.length;
         articleDiv.append(articleCard);
         document.getElementById('article-list').append(articleDiv);
     }
@@ -75,23 +75,64 @@ function initPage(){
             tagToggle.setAttribute('data-onstyle', 'dark');
             tagToggle.setAttribute('data-on', tag);
             tagToggle.setAttribute('data-off', tag);
-            $(tagToggle).change(toggleTag);
+            $(tagToggle).change(tagChange);
             document.getElementById('tag-list').append(tagToggle);
             $(tagToggle).bootstrapToggle();
+            tagsCheckbox[tag] = tagToggle;
         }
     }
 }
 
-function toggleTag(event) {
-    const tag = event.currentTarget.getAttribute('data-on');
-    const changeNum = event.currentTarget.checked?1:-1;
-    for (let index = 0; index < tagsData[tag].length; index++) {
-        const articleDiv = tagsData[tag][index];
-        articleDiv.tagCount += changeNum;
-        if (articleDiv.tagCount < 1){
-            articleDiv.style.display = 'none';
-        } else {
-            articleDiv.removeAttribute('style');
+function allTagChange() {
+    const swtichToOn = document.getElementById('all-tag-checkbox').checked;
+    for (const tag in tagsCheckbox) {
+        if (tagsCheckbox.hasOwnProperty(tag)) {
+            if(swtichToOn){
+                $(tagsCheckbox[tag]).bootstrapToggle('on', true);
+            } else {
+                $(tagsCheckbox[tag]).bootstrapToggle('off', true);
+            }
+        }
+    }
+    tagChange();
+}
+
+function tagChange() {
+    const mode = document.getElementById('tag-mode-checkbox').checked;
+    if(mode) {
+        $('.col-auto').css('display', 'none');
+        for (const tag in tagsData) {
+            if (tagsData.hasOwnProperty(tag) && tagsCheckbox[tag].checked) {
+                for (let index = 0; index < tagsData[tag].length; index++) {
+                    tagsData[tag][index].removeAttribute('style');
+                }
+            }
+        }
+    } else {
+        $('.col-auto').css('display', 'none');
+        let showDivs = new Array();
+        let first = true;
+        for (const tag in tagsCheckbox) {
+            if (tagsCheckbox.hasOwnProperty(tag) && tagsCheckbox[tag].checked) {
+                if (first) {
+                    Array.prototype.push.apply(showDivs , tagsData[tag]);
+                    first = false;
+                } else {
+                    for (let index = 0; index < showDivs.length; index++) {
+                        const showDiv = showDivs[index];
+                        if(tagsData[tag].indexOf(showDiv) < 0){
+                            showDivs.splice(index, 1);
+                            index--;
+                        }
+                    }
+                }
+            }
+            if(showDivs.length < 1){
+                break;
+            }
+        }
+        for (let index = 0; index < showDivs.length; index++) {
+            showDivs[index].removeAttribute('style');
         }
     }
 }
