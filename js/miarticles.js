@@ -19,7 +19,16 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initPage(){
-    for (let i = miarticlesTotal.length-1; i >= 0; i--) {
+    miarticlesTotal.sort(function(a, b){
+        if (a.publishTime > b.publishTime){
+            return -1;
+        } else if(a.publishTime < b.publishTime){
+            return 1;
+        } else {
+            return 0;
+        }
+    });
+    for (let i = 0; i < miarticlesTotal.length; i++) {
         const article = miarticlesTotal[i];
         const articleDiv = document.createElement('div');
         articleDiv.className = 'col-auto mb-3';
@@ -97,7 +106,7 @@ function filterAuthor(event) {
     $('#tag-list').hide();
     $('.col-auto').css('display', 'none');
     const author = event.currentTarget.innerText;
-    for (let i = miarticlesTotal.length-1; i >= 0; i--) {
+    for (let i = 0; i < miarticlesTotal.length; i++) {
         if (miarticlesTotal[i].author == author){
             $('#articleDiv_' + miarticlesTotal[i].id).show();
         }
