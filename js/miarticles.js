@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
             Array.prototype.push.apply(miarticlesTotal, data);
             totalDataLoadedCount++;
             if(totalDataLoadedCount == totalDataArray.length){
-                changeSortMode();
+                initPage(document.getElementById('sort-mode-checkbox').checked?'publishTime':'addTime', true);
             }
         });
     }
@@ -23,15 +23,13 @@ function changeSortMode(){
 }
 
 function reInitPage(sortField){
-    $('#tag-list').empty();
     $('#article-list').empty();
     tagsData = {};
-    tagsCheckbox = {};
-    initPage(sortField);
+    initPage(sortField, false);
     tagChange();
 }
 
-function initPage(sortField){
+function initPage(sortField, initTag){
     miarticlesTotal.sort(function(a, b){
         if (a[sortField] > b[sortField]){
             return -1;
@@ -94,23 +92,25 @@ function initPage(sortField){
         articleDiv.append(articleCard);
         document.getElementById('article-list').append(articleDiv);
     }
-    let tagIndex = 0;
-    for (const tag in tagsData) {
-        if (tagsData.hasOwnProperty(tag)) {
-            const tagToggle = document.createElement('input');
-            tagToggle.type = 'checkbox';
-            tagToggle.checked = true;
-            tagToggle.className = 'liver-tag';
-            tagToggle.id = 'tag'+tagIndex;
-            tagIndex++;
-            tagToggle.setAttribute('data-toggle', 'toggle');
-            tagToggle.setAttribute('data-onstyle', 'dark');
-            tagToggle.setAttribute('data-on', tag);
-            tagToggle.setAttribute('data-off', tag);
-            $(tagToggle).change(tagChange);
-            document.getElementById('tag-list').append(tagToggle);
-            $(tagToggle).bootstrapToggle();
-            tagsCheckbox[tag] = tagToggle;
+    if(initTag){
+        let tagIndex = 0;
+        for (const tag in tagsData) {
+            if (tagsData.hasOwnProperty(tag)) {
+                const tagToggle = document.createElement('input');
+                tagToggle.type = 'checkbox';
+                tagToggle.checked = true;
+                tagToggle.className = 'liver-tag';
+                tagToggle.id = 'tag'+tagIndex;
+                tagIndex++;
+                tagToggle.setAttribute('data-toggle', 'toggle');
+                tagToggle.setAttribute('data-onstyle', 'dark');
+                tagToggle.setAttribute('data-on', tag);
+                tagToggle.setAttribute('data-off', tag);
+                $(tagToggle).change(tagChange);
+                document.getElementById('tag-list').append(tagToggle);
+                $(tagToggle).bootstrapToggle();
+                tagsCheckbox[tag] = tagToggle;
+            }
         }
     }
 }
