@@ -12,17 +12,30 @@ document.addEventListener('DOMContentLoaded', function() {
             Array.prototype.push.apply(miarticlesTotal, data);
             totalDataLoadedCount++;
             if(totalDataLoadedCount == totalDataArray.length){
-                initPage();
+                changeSortMode();
             }
         });
     }
 });
 
-function initPage(){
+function changeSortMode(){
+    reInitPage(document.getElementById('sort-mode-checkbox').checked?'publishTime':'addTime');
+}
+
+function reInitPage(sortField){
+    $('#tag-list').empty();
+    $('#article-list').empty();
+    tagsData = {};
+    tagsCheckbox = {};
+    initPage(sortField);
+    tagChange();
+}
+
+function initPage(sortField){
     miarticlesTotal.sort(function(a, b){
-        if (a.publishTime > b.publishTime){
+        if (a[sortField] > b[sortField]){
             return -1;
-        } else if(a.publishTime < b.publishTime){
+        } else if(a[sortField] < b[sortField]){
             return 1;
         } else {
             return 0;
@@ -31,7 +44,7 @@ function initPage(){
     for (let i = 0; i < miarticlesTotal.length; i++) {
         const article = miarticlesTotal[i];
         const articleDiv = document.createElement('div');
-        articleDiv.className = 'col-auto mb-3';
+        articleDiv.className = 'article-div col-auto mb-3';
         articleDiv.id = 'articleDiv_' + article.id;
         const articleCard = document.createElement('div');
         articleCard.className = 'article shadow card';
@@ -51,9 +64,9 @@ function initPage(){
         authorSpan.title = '点击仅展示该作者文章';
         authorSpan.addEventListener('click', filterAuthor);
         subtitle.append(authorSpan);
-        const publishTimeSpan = document.createElement('span');
-        publishTimeSpan.innerText = article.publishTime;
-        subtitle.append(publishTimeSpan);
+        const timeSpan = document.createElement('span');
+        timeSpan.innerText = article[sortField];
+        subtitle.append(timeSpan);
         articleBody.append(subtitle);
         const text = document.createElement('p');
         text.className = 'card-text';
@@ -87,6 +100,7 @@ function initPage(){
             const tagToggle = document.createElement('input');
             tagToggle.type = 'checkbox';
             tagToggle.checked = true;
+            tagToggle.className = 'liver-tag';
             tagToggle.id = 'tag'+tagIndex;
             tagIndex++;
             tagToggle.setAttribute('data-toggle', 'toggle');
@@ -103,8 +117,8 @@ function initPage(){
 
 function filterAuthor(event) {
     event.stopPropagation();
-    $('#tag-list').hide();
-    $('.col-auto').css('display', 'none');
+    $('.tag-list').hide();
+    $('.article-div').css('display', 'none');
     const author = event.currentTarget.innerText;
     for (let i = 0; i < miarticlesTotal.length; i++) {
         if (miarticlesTotal[i].author == author){
@@ -117,7 +131,7 @@ function filterAuthor(event) {
 
 function changeToTagFilter(){
     $('#author-filter-info').hide();
-    $('#tag-list').show();
+    $('.tag-list').show();
     tagChange();
 }
 
@@ -138,7 +152,7 @@ function allTagChange() {
 function tagChange() {
     const mode = document.getElementById('tag-mode-checkbox').checked;
     if(mode) {
-        $('.col-auto').css('display', 'none');
+        $('.article-div').css('display', 'none');
         for (const tag in tagsData) {
             if (tagsData.hasOwnProperty(tag) && tagsCheckbox[tag].checked) {
                 for (let index = 0; index < tagsData[tag].length; index++) {
@@ -147,7 +161,7 @@ function tagChange() {
             }
         }
     } else {
-        $('.col-auto').css('display', 'none');
+        $('.article-div').css('display', 'none');
         let showDivs = new Array();
         let first = true;
         for (const tag in tagsCheckbox) {
