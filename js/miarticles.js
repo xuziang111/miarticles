@@ -26,7 +26,6 @@ function reInitPage(sortField){
     $('#article-list').empty();
     tagsData = {};
     initPage(sortField, false);
-    tagChange();
 }
 
 function initPage(sortField, initTag){
@@ -44,8 +43,9 @@ function initPage(sortField, initTag){
         const articleDiv = document.createElement('div');
         articleDiv.className = 'article-div col-auto mb-3';
         articleDiv.id = 'articleDiv_' + article.id;
+        articleDiv.ratting = article.ratting;
         const articleCard = document.createElement('div');
-        articleCard.className = 'article shadow card';
+        articleCard.className = 'article shadow card' + (article.ratting=='e'?' border-danger':(article.ratting=='q'?' border-warning':''));
         articleCard.setAttribute('data-id', article.id);
         articleCard.setAttribute('data-index', i);
         const articleBody = document.createElement('div');
@@ -72,7 +72,7 @@ function initPage(sortField, initTag){
         articleBody.append(text);
         articleCard.append(articleBody);
         const tagDiv = document.createElement('div');
-        tagDiv.className = 'card-footer text-muted';
+        tagDiv.className = 'card-footer ' + (article.ratting=='e'?'bg-danger text-white':(article.ratting=='q'?'bg-warning text-white':'text-muted'));
         let tagText = '';
         for (let j = 0; j < article.tags.length; j++) {
             const tag = article.tags[j];
@@ -81,9 +81,17 @@ function initPage(sortField, initTag){
             }
             tagText = tagText + tag;
             if (!tagsData[tag]){
-                tagsData[tag] = [articleDiv];
+                tagsData[tag] = {
+                    "ratting": article.ratting,
+                    "divs": [articleDiv]
+                };
             } else {
-                tagsData[tag].push(articleDiv);
+                tagsData[tag].divs.push(articleDiv);
+                if (article.ratting == 's'){
+                    tagsData[tag].ratting = 's';
+                } else if (article.ratting == 'q' && tagsData[tag].ratting == 'e') {
+                    tagsData[tag].ratting = 'q';
+                }
             }
         }
         tagDiv.innerText = tagText;
@@ -99,20 +107,21 @@ function initPage(sortField, initTag){
                 const tagToggle = document.createElement('input');
                 tagToggle.type = 'checkbox';
                 tagToggle.checked = true;
-                tagToggle.className = 'liver-tag';
+                tagToggle.className = 'liver-tag-' + tagsData[tag].ratting;
                 tagToggle.id = 'tag'+tagIndex;
                 tagIndex++;
                 tagToggle.setAttribute('data-toggle', 'toggle');
                 tagToggle.setAttribute('data-onstyle', 'dark');
                 tagToggle.setAttribute('data-on', tag);
                 tagToggle.setAttribute('data-off', tag);
-                $(tagToggle).change(tagChange);
+                $(tagToggle).change(changeFilter);
                 document.getElementById('tag-list').append(tagToggle);
                 $(tagToggle).bootstrapToggle();
                 tagsCheckbox[tag] = tagToggle;
             }
         }
     }
+    changeFilter();
 }
 
 function filterAuthor(event) {
@@ -120,8 +129,9 @@ function filterAuthor(event) {
     $('.tag-list').hide();
     $('.article-div').css('display', 'none');
     const author = event.currentTarget.innerText;
+    const ratting = parseInt($("input[name='ratting']:checked").val());
     for (let i = 0; i < miarticlesTotal.length; i++) {
-        if (miarticlesTotal[i].author == author){
+        if (miarticlesTotal[i].author == author && (ratting>1 || miarticlesTotal[i].ratting=='s' || (ratting>0 && miarticlesTotal[i].ratting=='q'))){
             $('#articleDiv_' + miarticlesTotal[i].id).show();
         }
     }
@@ -132,7 +142,7 @@ function filterAuthor(event) {
 function changeToTagFilter(){
     $('#author-filter-info').hide();
     $('.tag-list').show();
-    tagChange();
+    changeFilter();
 }
 
 function allTagChange() {
@@ -146,33 +156,53 @@ function allTagChange() {
             }
         }
     }
-    tagChange();
+    changeFilter();
 }
 
-function tagChange() {
+function changeFilter() {
     const mode = document.getElementById('tag-mode-checkbox').checked;
+    $(".ratting-label").removeClass('btn-secondary').each(function(){
+        const checkedClass = this.getAttribute('checked-class');
+        if(this.getElementsByTagName('input')[0].checked){
+            $(this).removeClass(checkedClass).addClass(checkedClass);
+        } else {
+            $(this).removeClass(checkedClass).addClass('btn-secondary');
+        }
+    });
+    const ratting = parseInt($("input[name='ratting']:checked").val());
+    if (ratting < 1){
+        $('.liver-tag-q').parent().hide();
+        $('.liver-tag-e').parent().hide();
+    } else if (ratting < 2){
+        $('.liver-tag-q').parent().show();
+        $('.liver-tag-e').parent().hide();
+    } else {
+        $('.liver-tag-q').parent().show();
+        $('.liver-tag-e').parent().show();
+    }
+    $('.article-div').css('display', 'none');
     if(mode) {
-        $('.article-div').css('display', 'none');
         for (const tag in tagsData) {
             if (tagsData.hasOwnProperty(tag) && tagsCheckbox[tag].checked) {
-                for (let index = 0; index < tagsData[tag].length; index++) {
-                    tagsData[tag][index].removeAttribute('style');
+                for (let index = 0; index < tagsData[tag].divs.length; index++) {
+                    if(ratting>1 || tagsData[tag].divs[index].ratting=='s' || (ratting>0 && tagsData[tag].divs[index].ratting=='q')){
+                        tagsData[tag].divs[index].removeAttribute('style');
+                    }
                 }
             }
         }
     } else {
-        $('.article-div').css('display', 'none');
         let showDivs = new Array();
         let first = true;
         for (const tag in tagsCheckbox) {
             if (tagsCheckbox.hasOwnProperty(tag) && tagsCheckbox[tag].checked) {
                 if (first) {
-                    Array.prototype.push.apply(showDivs , tagsData[tag]);
+                    Array.prototype.push.apply(showDivs , tagsData[tag].divs);
                     first = false;
                 } else {
                     for (let index = 0; index < showDivs.length; index++) {
                         const showDiv = showDivs[index];
-                        if(tagsData[tag].indexOf(showDiv) < 0){
+                        if(tagsData[tag].divs.indexOf(showDiv) < 0){
                             showDivs.splice(index, 1);
                             index--;
                         }
@@ -184,7 +214,9 @@ function tagChange() {
             }
         }
         for (let index = 0; index < showDivs.length; index++) {
-            showDivs[index].removeAttribute('style');
+            if(ratting>1 || showDivs[index].ratting=='s' || (ratting>0 && showDivs[index].ratting=='q')){
+                showDivs[index].removeAttribute('style');
+            }
         }
     }
 }
@@ -197,14 +229,30 @@ function showArticleDetail(event){
     document.getElementById('article-detail-title-label').innerText = article.title;
     if (miarticlesDetails[id]) {
         document.getElementById('article-detail-body').innerHTML = miarticlesDetails[id].contentHtml;
+        buildUtterancesScript(id);
     } else {
         document.getElementById('article-detail-body').innerHTML = 'Loading...';
         $.getJSON(cdnPrefix+article.version+'/js/miarticles.data.'+id+'.json', function(data){
             miarticlesDetails[id] = data;
             if (currentShowArticleId == id) {
                 document.getElementById('article-detail-body').innerHTML = data.contentHtml;
+                buildUtterancesScript(id);
             }
         });
     }
     $('#article-detail').modal('show');
+}
+
+function buildUtterancesScript(id){
+    if(supportComment){
+        const scriptTag = document.createElement('script');
+        scriptTag.src = "https://utteranc.es/client.js";
+        scriptTag.crossOrigin = 'anonymous';
+        scriptTag.async = true;
+        scriptTag.setAttribute('repo', 'mihirukiss/miarticles');
+        scriptTag.setAttribute('issue-term', 'comment_' + id);
+        scriptTag.setAttribute('theme', 'preferred-color-scheme');
+        scriptTag.setAttribute('label', 'comment');
+        document.getElementById('article-detail-body').append(scriptTag);
+    }
 }
