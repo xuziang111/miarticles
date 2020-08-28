@@ -12,6 +12,19 @@ document.addEventListener('DOMContentLoaded', function() {
             Array.prototype.push.apply(miarticlesTotal, data);
             totalDataLoadedCount++;
             if(totalDataLoadedCount == totalDataArray.length){
+                $('#copy-link').tooltip();
+                const clipboard = new ClipboardJS('.copy-link', {
+                    text: function(trigger){
+                        return 'https://mihiru.com/miarticles/?id='+currentShowArticleId;
+                    },
+                    container: document.getElementById('article-detail')
+                });
+                clipboard.on('success', function(e){
+                    $('.tooltip-inner').text('链接已复制');
+                });
+                clipboard.on('error', function(e){
+                    $('.tooltip-inner').text('复制链接失败');
+                });
                 initPage(document.getElementById('sort-mode-checkbox').checked?'publishTime':'addTime', true);
             }
         });
@@ -44,7 +57,9 @@ function initPage(sortField, initTag){
         articleDiv.className = 'article-div col-auto mb-3';
         articleDiv.id = 'articleDiv_' + article.id;
         articleDiv.ratting = article.ratting;
-        const articleCard = document.createElement('div');
+        const articleCard = document.createElement('a');
+        articleCard.href = '?id=' + article.id;
+        articleCard.id = 'article_' + article.id;
         articleCard.className = 'article shadow card' + (article.ratting=='e'?' border-danger':(article.ratting=='q'?' border-warning':''));
         articleCard.setAttribute('data-id', article.id);
         articleCard.setAttribute('data-index', i);
@@ -96,7 +111,7 @@ function initPage(sortField, initTag){
         }
         tagDiv.innerText = tagText;
         articleCard.append(tagDiv);
-        articleCard.addEventListener('click', showArticleDetail);
+        articleCard.addEventListener('click', clickArticleCard);
         articleDiv.append(articleCard);
         document.getElementById('article-list').append(articleDiv);
     }
@@ -118,6 +133,12 @@ function initPage(sortField, initTag){
                 document.getElementById('tag-list').append(tagToggle);
                 $(tagToggle).bootstrapToggle();
                 tagsCheckbox[tag] = tagToggle;
+            }
+        }
+        if(window.location.search){
+            const param = /[\?\&]id=(\d+)/.exec(window.location.search);
+            if(param.length > 1){
+                showArticleDetail(param[1]);
             }
         }
     }
@@ -221,9 +242,14 @@ function changeFilter() {
     }
 }
 
-function showArticleDetail(event){
+function clickArticleCard(event){
+    event.preventDefault();
     const id = event.currentTarget.getAttribute('data-id');
-    const index = event.currentTarget.getAttribute('data-index');
+    showArticleDetail(id);
+}
+
+function showArticleDetail(id){
+    const index = document.getElementById('article_'+id).getAttribute('data-index');
     const article = miarticlesTotal[index];
     currentShowArticleId = id;
     document.getElementById('article-detail-title-label').innerText = article.title;

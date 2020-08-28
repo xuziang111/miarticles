@@ -5,6 +5,10 @@ body {
     width: 280px;
     cursor: pointer;
 }
+a.article {
+    text-decoration: none;
+    color: inherit;
+}
 .author-span {
     padding-right: .5rem;
 }
@@ -17,4 +21,10 @@ body {
 .tag-list .toggle {
     margin-right: .75rem;
     margin-bottom: .5rem;
+}
+.copy-link {
+    cursor: pointer;
+    width: 1.25rem;
+    margin-left: 0.5rem;
+    margin-top: 0.35rem;
 }
