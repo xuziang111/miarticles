@@ -1,20 +1,20 @@
 body {
     background-color: burlywood;
 }
-.article-list, .tag-list {
-    padding-top: 10px;
-}
 .article {
     width: 280px;
     cursor: pointer;
 }
-.toggle {
-    margin-right: 5px;
-    margin-top: 5px;
-}
 .author-span {
-    padding-right: 5px;
+    padding-right: .5rem;
 }
 .author-span:hover {
     color: lightblue;
+}
+.form-check {
+    margin-bottom: .5rem;
+}
+.tag-list .toggle {
+    margin-right: .75rem;
+    margin-bottom: .5rem;
 }
