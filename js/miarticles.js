@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 clipboard.on('error', function(e){
                     $('.tooltip-inner').text('复制链接失败');
                 });
+                miarticlesTotal.reverse();
                 initPage(document.getElementById('sort-mode-checkbox').checked?'publishTime':'addTime', true);
             }
         });

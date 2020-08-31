@@ -28,3 +28,9 @@ a.article {
     margin-left: 0.5rem;
     margin-top: 0.35rem;
 }
+#article-detail-body p.indent {
+    text-indent: 2em;
+}
+#article-detail-body p.chapter {
+    padding-top: 1rem;
+}
