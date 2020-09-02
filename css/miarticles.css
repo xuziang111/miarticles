@@ -34,3 +34,12 @@ a.article {
 #article-detail-body p.chapter {
     padding-top: 1rem;
 }
+#article-detail-body span.spoiler {
+    background-color: black;
+    color: black;
+}
+#article-detail-body span.spoiler:hover,
+#article-detail-body span.spoiler:active {
+    background-color: inherit;
+    color: inherit;
+}
