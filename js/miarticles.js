@@ -164,6 +164,7 @@ function filterAuthor(event) {
     event.preventDefault();
     event.stopPropagation();
     $('.tag-list').hide();
+    $('.control-btns').hide();
     $('.article-div').css('display', 'none');
     const author = event.currentTarget.innerText;
     const ratting = parseInt($("input[name='ratting']:checked").val());
@@ -179,6 +180,7 @@ function filterAuthor(event) {
 function changeToTagFilter(){
     $('#author-filter-info').hide();
     $('.tag-list').show();
+    $('.control-btns').show();
     changeFilter();
 }
 
