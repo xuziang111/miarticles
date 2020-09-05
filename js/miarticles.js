@@ -117,15 +117,25 @@ function initPage(sortField, initTag){
         document.getElementById('article-list').append(articleDiv);
     }
     if(initTag){
-        let tagIndex = 0;
-        for (const tag in tagsData) {
+        const tags = Object.keys(tagsData);
+        tags.sort(function(a, b){
+            const aIsLetterStart = isLetterStart(a);
+            const bIsLetterStart = isLetterStart(b);
+            if(aIsLetterStart && !bIsLetterStart){
+                return -1;
+            } else if(!aIsLetterStart && bIsLetterStart){
+                return 1;
+            }
+            return a.localeCompare(b,"zh");
+        });
+        for (let tagIndex = 0; tagIndex < tags.length; tagIndex++) {
+            const tag = tags[tagIndex];
             if (tagsData.hasOwnProperty(tag)) {
                 const tagToggle = document.createElement('input');
                 tagToggle.type = 'checkbox';
                 tagToggle.checked = true;
                 tagToggle.className = 'liver-tag-' + tagsData[tag].ratting;
                 tagToggle.id = 'tag'+tagIndex;
-                tagIndex++;
                 tagToggle.setAttribute('data-toggle', 'toggle');
                 tagToggle.setAttribute('data-onstyle', 'dark');
                 tagToggle.setAttribute('data-on', tag);
@@ -146,7 +156,12 @@ function initPage(sortField, initTag){
     changeFilter();
 }
 
+function isLetterStart(str){
+    return (str[0]>='a' && str[0]<='z') || (str[0]>='A' && str[0]<='Z');
+}
+
 function filterAuthor(event) {
+    event.preventDefault();
     event.stopPropagation();
     $('.tag-list').hide();
     $('.article-div').css('display', 'none');
